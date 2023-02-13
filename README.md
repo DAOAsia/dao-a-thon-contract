@@ -1,13 +1,32 @@
-# Sample Hardhat Project
+# dao-a-thon-contract
+テスト用のコントラクトは "TestNFT" として別のコントラクトを用意してあります。
+関数名などはメインデプロイ用と同じにして実装します。
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, and a script that deploys that contract.
+## 環境構築
 
-Try running some of the following tasks:
-
+### パッケージのインストール
 ```shell
-npx hardhat help
-npx hardhat test
-REPORT_GAS=true npx hardhat test
-npx hardhat node
-npx hardhat run scripts/deploy.ts
+yarn install
+```
+
+### .envファイルの準備
+```shell
+cp ./.env.example ./.env
+```
+コピーされた.envファイルの中身を埋めてください。
+
+### テスト
+```shell
+yarn hardhat test
+```
+
+### デプロイ
+```shell
+yarn hardhat run scripts/deploy.ts --network mumbai
+```
+デプロイしたコントラクトアドレスが表示されるので、メモしてください。
+
+### Polygonscanによるコントラクトの認証
+```shell
+yarn hardhat verify --network mumbai {コントラクトアドレス}
 ```
