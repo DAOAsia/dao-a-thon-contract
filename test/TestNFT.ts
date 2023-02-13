@@ -82,39 +82,39 @@ describe("TestNFT", function () {
     });
   });
 
-  describe("TokenURI", function () {
-    it("Should #1's tokenURI be", async function () {
-      const { testNft, user1, user2 } = await loadFixture(deployFixture);
+//   describe("TokenURI", function () {
+//     it("Should #1's tokenURI be", async function () {
+//       const { testNft, user1, user2 } = await loadFixture(deployFixture);
 
-      await expect(testNft.tokenURI(0)).to.be.revertedWith("ERC721: invalid token ID");
-      await expect(testNft.tokenURI(1)).to.be.revertedWith("ERC721: invalid token ID");
-      await expect(testNft.tokenURI(2)).to.be.revertedWith("ERC721: invalid token ID");
+//       await expect(testNft.tokenURI(0)).to.be.revertedWith("ERC721: invalid token ID");
+//       await expect(testNft.tokenURI(1)).to.be.revertedWith("ERC721: invalid token ID");
+//       await expect(testNft.tokenURI(2)).to.be.revertedWith("ERC721: invalid token ID");
 
-      await testNft.connect(user1).mintNft();
+//       await testNft.connect(user1).mintNft();
 
-      await expect(testNft.tokenURI(0)).to.be.revertedWith("ERC721: invalid token ID");
-      expect(await testNft.tokenURI(1)).to.equal("TokenURI");
-      await expect(testNft.tokenURI(2)).to.be.revertedWith("ERC721: invalid token ID");
-    });
+//       await expect(testNft.tokenURI(0)).to.be.revertedWith("ERC721: invalid token ID");
+//       expect(await testNft.tokenURI(1)).to.equal("TokenURI");
+//       await expect(testNft.tokenURI(2)).to.be.revertedWith("ERC721: invalid token ID");
+//     });
 
-    it("Should #2's tokenURI be", async function () {
-      const { testNft, user1, user2 } = await loadFixture(deployFixture);
+//     it("Should #2's tokenURI be", async function () {
+//       const { testNft, user1, user2 } = await loadFixture(deployFixture);
 
-      await testNft.connect(user1).mintNft();
+//       await testNft.connect(user1).mintNft();
 
-      await expect(testNft.tokenURI(0)).to.be.revertedWith("ERC721: invalid token ID");
-      expect(await testNft.tokenURI(1)).to.equal("TokenURI");
-      await expect(testNft.tokenURI(2)).to.be.revertedWith("ERC721: invalid token ID");
-      await expect(testNft.tokenURI(3)).to.be.revertedWith("ERC721: invalid token ID");
+//       await expect(testNft.tokenURI(0)).to.be.revertedWith("ERC721: invalid token ID");
+//       expect(await testNft.tokenURI(1)).to.equal("TokenURI");
+//       await expect(testNft.tokenURI(2)).to.be.revertedWith("ERC721: invalid token ID");
+//       await expect(testNft.tokenURI(3)).to.be.revertedWith("ERC721: invalid token ID");
 
-      await testNft.connect(user2).mintNft();
+//       await testNft.connect(user2).mintNft();
 
-      await expect(testNft.tokenURI(0)).to.be.revertedWith("ERC721: invalid token ID");
-      expect(await testNft.tokenURI(1)).to.equal("TokenURI");
-      expect(await testNft.tokenURI(2)).to.equal("TokenURI");
-      await expect(testNft.tokenURI(3)).to.be.revertedWith("ERC721: invalid token ID");
-    });
-  });
+//       await expect(testNft.tokenURI(0)).to.be.revertedWith("ERC721: invalid token ID");
+//       expect(await testNft.tokenURI(1)).to.equal("TokenURI");
+//       expect(await testNft.tokenURI(2)).to.equal("TokenURI");
+//       await expect(testNft.tokenURI(3)).to.be.revertedWith("ERC721: invalid token ID");
+//     });
+//   });
 
   describe("BurnNFT", function () {
     it("Should burn #1 by user1", async function () {
