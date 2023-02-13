@@ -15,11 +15,11 @@ contract TestNFT is ERC721("Test NFT", "TNFT") {
         uint256 firstTokenId,
         uint256 batchSize
     ) internal override {
-        require(_hasMinted[msg.sender] == false, "You hava already minted.");
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
     function mintNft() public {
+        require(_hasMinted[msg.sender] == false, "You hava already minted.");
         uint256 tokenId = ++_tokenId;
         _safeMint(msg.sender, tokenId);
         _tokenURIs[tokenId] = "TokenURI";
