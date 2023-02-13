@@ -19,11 +19,16 @@ contract TestNFT is ERC721("Test NFT", "TNFT") {
     }
 
     function mintNft() public {
-        require(_hasMinted[msg.sender] == false, "You hava already minted.");
+        require(_hasMinted[msg.sender] == false, "You hava already minted");
         uint256 tokenId = ++_tokenId;
         _safeMint(msg.sender, tokenId);
         _tokenURIs[tokenId] = "TokenURI";
         _hasMinted[msg.sender] = true;
+    }
+
+    function burnNft(uint256 tokenId) public {
+        require(msg.sender == ownerOf(tokenId), "Only the owner can burn");
+        _burn(tokenId);
     }
 
     function tokenURI(uint256 tokenId)
