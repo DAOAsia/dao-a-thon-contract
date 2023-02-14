@@ -36,30 +36,10 @@ contract TestNFT is ERC721("Test NFT", "TNFT") {
         returns (string memory)
     {
         _requireMinted(tokenId);
-        return
-            string(
-                abi.encodePacked(
-                    "data:application/json;base64,",
-                    Base64.encode(
-                        abi.encodePacked(
-                            '{"image": "ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S", "external_url": "https://ethereum.org/", "description": "tokenURI description!!", "name": "',
-                            name(),
-                            '", "background_color": "ee82ee"}'
-                        )
-                    )
-                )
-            );
+        return "ipfs://QmZyDPjt35VYvFLB7r76ME78ADMH7ZvuMGbeV4UzbPjPHU";
     }
 
     function contractURI() public pure returns (string memory) {
-        return
-            string(
-                abi.encodePacked(
-                    "data:application/json;base64,",
-                    Base64.encode(
-                        '{"name": "event TestNFTs", "description": "contractURI description!!!", "image": "ipfs://QmayU4hTAyFQTHTfTAvxdiPCtyMxCW2qZs5SF2kUs4jCbk", "external_link": "https://polygon.technology/"}'
-                    )
-                )
-            );
+        return "ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g";
     }
 }
