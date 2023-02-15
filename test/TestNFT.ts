@@ -4,17 +4,17 @@ import { ethers } from "hardhat";
 
 describe("TestNFT", function () {
   async function deployFixture() {
-    const [deployer, user1, user2] = await ethers.getSigners();
+    const [user1, user2, deployer] = await ethers.getSigners();
 
     const TestNFT = await ethers.getContractFactory("TestNFT");
     const testNft = await TestNFT.connect(deployer).deploy();
 
-    return { testNft, deployer, user1, user2 };
+    return { testNft, user1, user2, deployer };
   }
 
   describe("Deployment", function () {
     it("Should deploy", async function () {
-      const { testNft, deployer, user1 } = await loadFixture(deployFixture);
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
     });
   });
 
@@ -174,6 +174,72 @@ describe("TestNFT", function () {
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
       expect(await testNft.balanceOf(user1.address)).to.equal(1);
       expect(await testNft.balanceOf(user2.address)).to.equal(1);
+    });
+  });
+
+  describe("setTokenUriImage", function () {
+    it("Should read initial vale of tokenUriImage", async function () {
+      const { testNft, deployer, user1, user2 } = await loadFixture(deployFixture);
+
+      expect(await testNft.tokenUriImage()).to.equal("ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S");
+    });
+    
+    it("Should set new tokenUriImage by admin", async function () {
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.tokenUriImage()).to.equal("ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S");
+
+      await testNft.connect(deployer).setTokenUriImage("new tokenUriImage");
+
+      expect(await testNft.tokenUriImage()).to.equal("new tokenUriImage");
+
+      await testNft.connect(deployer).setTokenUriImage("new tokenUriImage 2");
+
+      expect(await testNft.tokenUriImage()).to.equal("new tokenUriImage 2");
+    });
+    
+    it("Should revert setting new tokenUriImage by non admin", async function () {
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.tokenUriImage()).to.equal("ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S");
+
+      await expect(testNft.connect(user1).setTokenUriImage("new tokenUriImage")).to.be.revertedWith("Only admin");
+
+      expect(await testNft.tokenUriImage()).to.equal("ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S");
+    });
+  });
+
+  describe("setContractUriImage", function () {
+    it("Should read initial vale of tokenUriImage", async function () {
+      const { testNft, deployer, user1, user2 } = await loadFixture(deployFixture);
+
+      expect(await testNft.contractUriImage()).to.equal("ipfs://QmayU4hTAyFQTHTfTAvxdiPCtyMxCW2qZs5SF2kUs4jCbk");
+    });
+    
+    it("Should set new contractUriImage by admin", async function () {
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+
+
+
+      expect(await testNft.contractUriImage()).to.equal("ipfs://QmayU4hTAyFQTHTfTAvxdiPCtyMxCW2qZs5SF2kUs4jCbk");
+
+      await testNft.connect(deployer).setContractUriImage("new contractUriImage");
+
+      expect(await testNft.contractUriImage()).to.equal("new contractUriImage");
+
+      await testNft.connect(deployer).setContractUriImage("new contractUriImage 2");
+
+      expect(await testNft.contractUriImage()).to.equal("new contractUriImage 2");
+    });
+    
+    it("Should revert setting new contractUriImage by non admin", async function () {
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.contractUriImage()).to.equal("ipfs://QmayU4hTAyFQTHTfTAvxdiPCtyMxCW2qZs5SF2kUs4jCbk");
+
+      await expect(testNft.connect(user1).setContractUriImage("new contractUriImage")).to.be.revertedWith("Only admin");
+
+      expect(await testNft.contractUriImage()).to.equal("ipfs://QmayU4hTAyFQTHTfTAvxdiPCtyMxCW2qZs5SF2kUs4jCbk");
     });
   });
 });
