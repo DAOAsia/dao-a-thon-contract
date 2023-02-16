@@ -5,14 +5,14 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 contract TestNFT is ERC721("Test NFT", "TNFT") {
-    uint256 public _tokenId;
+    uint256 public tokenIds;
     address public admin;
     string public tokenUriImage =
         "ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S";
-    string public contractUriImage =
-        "ipfs://QmayU4hTAyFQTHTfTAvxdiPCtyMxCW2qZs5SF2kUs4jCbk";
+    string public contractUriJson =
+        "ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g";
 
-    mapping(address => bool) private _hasMinted;
+    mapping(address => bool) public hasMinted;
 
     constructor() {
         admin = msg.sender;
@@ -21,6 +21,19 @@ contract TestNFT is ERC721("Test NFT", "TNFT") {
     modifier onlyAdmin() {
         require(msg.sender == admin, "Only admin");
         _;
+    }
+
+    function transferAdminship(address newAdmin) external onlyAdmin {
+        require(newAdmin != address(0), "New Admin is the zero address");
+        admin = newAdmin;
+    }
+
+    function setTokenUriImage(string memory imageCid) external onlyAdmin {
+        tokenUriImage = imageCid;
+    }
+
+    function setContractUriJson(string memory jsonCid) external onlyAdmin {
+        contractUriJson = jsonCid;
     }
 
     function _beforeTokenTransfer(
@@ -32,24 +45,17 @@ contract TestNFT is ERC721("Test NFT", "TNFT") {
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
-    function mintNft() public {
-        require(_hasMinted[msg.sender] == false, "You hava already minted");
-        _hasMinted[msg.sender] = true;
-        _safeMint(msg.sender, _tokenId);
-        ++_tokenId;
+    function mintNft() external {
+        require(hasMinted[msg.sender] == false, "You hava already minted");
+        hasMinted[msg.sender] = true;
+        _safeMint(msg.sender, tokenIds);
+        ++tokenIds;
     }
 
-    function burnNft(uint256 tokenId) public {
+    function burnNft(uint256 tokenId) external {
         require(msg.sender == ownerOf(tokenId), "Only the owner can burn");
+        hasMinted[msg.sender] = false;
         _burn(tokenId);
-    }
-
-    function setTokenUriImage(string memory imageCid) external onlyAdmin {
-        tokenUriImage = imageCid;
-    }
-
-    function setContractUriImage(string memory imageCid) external onlyAdmin {
-        contractUriImage = imageCid;
     }
 
     function tokenURI(uint256 tokenId)
@@ -75,18 +81,6 @@ contract TestNFT is ERC721("Test NFT", "TNFT") {
     }
 
     function contractURI() public view returns (string memory) {
-        return
-            string(
-                abi.encodePacked(
-                    "data:application/json;base64,",
-                    Base64.encode(
-                        abi.encodePacked(
-                            '{"name": "Test NFT 1st", "description": "contractURI description. contractURI description.", "image": "',
-                            contractUriImage,
-                            '", "external_link": "https://polygon.technology/"}'
-                        )
-                    )
-                )
-            );
+        return contractUriJson;
     }
 }

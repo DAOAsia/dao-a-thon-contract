@@ -16,12 +16,33 @@ describe("TestNFT", function () {
     it("Should deploy", async function () {
       const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
     });
+
+    it("Should check initial tokenUriImage", async function () {
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.tokenUriImage()).to.equal("ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S");
+    });
+
+    it("Should check initial contractUriJson", async function () {
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.contractUriJson()).to.equal("ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g");
+    });
+
+    it("Should check admin", async function () {
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.admin()).to.equal(deployer.address);
+    });
   });
 
-  describe("Mint", function () {
+  describe("mintNft", function () {
     it("Should mint #1 by user1", async function () {
       const { testNft, user1, user2 } = await loadFixture(deployFixture);
 
+      expect(await testNft.tokenIds()).to.equal(0);
+      expect(await testNft.hasMinted(user1.address)).to.equal(false);
+      expect(await testNft.hasMinted(user2.address)).to.equal(false);
       await expect(testNft.ownerOf(0)).to.be.revertedWith("ERC721: invalid token ID");
       await expect(testNft.ownerOf(1)).to.be.revertedWith("ERC721: invalid token ID");
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
@@ -30,6 +51,9 @@ describe("TestNFT", function () {
 
       await testNft.connect(user1).mintNft();
 
+      expect(await testNft.tokenIds()).to.equal(1);
+      expect(await testNft.hasMinted(user1.address)).to.equal(true);
+      expect(await testNft.hasMinted(user2.address)).to.equal(false);
       expect(await testNft.ownerOf(0)).to.equal(user1.address);
       await expect(testNft.ownerOf(1)).to.be.revertedWith("ERC721: invalid token ID");
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
@@ -42,6 +66,9 @@ describe("TestNFT", function () {
 
       await testNft.connect(user1).mintNft();
 
+      expect(await testNft.tokenIds()).to.equal(1);
+      expect(await testNft.hasMinted(user1.address)).to.equal(true);
+      expect(await testNft.hasMinted(user2.address)).to.equal(false);
       expect(await testNft.ownerOf(0)).to.equal(user1.address);
       await expect(testNft.ownerOf(1)).to.be.revertedWith("ERC721: invalid token ID");
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
@@ -50,6 +77,9 @@ describe("TestNFT", function () {
 
       await expect(testNft.connect(user1).mintNft()).to.be.revertedWith("You hava already minted");
 
+      expect(await testNft.tokenIds()).to.equal(1);
+      expect(await testNft.hasMinted(user1.address)).to.equal(true);
+      expect(await testNft.hasMinted(user2.address)).to.equal(false);
       expect(await testNft.ownerOf(0)).to.equal(user1.address);
       await expect(testNft.ownerOf(1)).to.be.revertedWith("ERC721: invalid token ID");
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
@@ -62,6 +92,9 @@ describe("TestNFT", function () {
 
       await testNft.connect(user1).mintNft();
 
+      expect(await testNft.tokenIds()).to.equal(1);
+      expect(await testNft.hasMinted(user1.address)).to.equal(true);
+      expect(await testNft.hasMinted(user2.address)).to.equal(false);
       expect(await testNft.ownerOf(0)).to.equal(user1.address);
       await expect(testNft.ownerOf(1)).to.be.revertedWith("ERC721: invalid token ID");
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
@@ -70,6 +103,9 @@ describe("TestNFT", function () {
 
       await testNft.connect(user2).mintNft();
 
+      expect(await testNft.tokenIds()).to.equal(2);
+      expect(await testNft.hasMinted(user1.address)).to.equal(true);
+      expect(await testNft.hasMinted(user2.address)).to.equal(true);
       expect(await testNft.ownerOf(0)).to.equal(user1.address);
       expect(await testNft.ownerOf(1)).to.equal(user2.address);
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
@@ -78,40 +114,6 @@ describe("TestNFT", function () {
     });
   });
 
-//   describe("TokenURI", function () {
-//     it("Should #1's tokenURI be", async function () {
-//       const { testNft, user1, user2 } = await loadFixture(deployFixture);
-
-//       await expect(testNft.tokenURI(0)).to.be.revertedWith("ERC721: invalid token ID");
-//       await expect(testNft.tokenURI(1)).to.be.revertedWith("ERC721: invalid token ID");
-//       await expect(testNft.tokenURI(2)).to.be.revertedWith("ERC721: invalid token ID");
-
-//       await testNft.connect(user1).mintNft();
-
-//       await expect(testNft.tokenURI(0)).to.be.revertedWith("ERC721: invalid token ID");
-//       expect(await testNft.tokenURI(1)).to.equal("TokenURI");
-//       await expect(testNft.tokenURI(2)).to.be.revertedWith("ERC721: invalid token ID");
-//     });
-
-//     it("Should #2's tokenURI be", async function () {
-//       const { testNft, user1, user2 } = await loadFixture(deployFixture);
-
-//       await testNft.connect(user1).mintNft();
-
-//       await expect(testNft.tokenURI(0)).to.be.revertedWith("ERC721: invalid token ID");
-//       expect(await testNft.tokenURI(1)).to.equal("TokenURI");
-//       await expect(testNft.tokenURI(2)).to.be.revertedWith("ERC721: invalid token ID");
-//       await expect(testNft.tokenURI(3)).to.be.revertedWith("ERC721: invalid token ID");
-
-//       await testNft.connect(user2).mintNft();
-
-//       await expect(testNft.tokenURI(0)).to.be.revertedWith("ERC721: invalid token ID");
-//       expect(await testNft.tokenURI(1)).to.equal("TokenURI");
-//       expect(await testNft.tokenURI(2)).to.equal("TokenURI");
-//       await expect(testNft.tokenURI(3)).to.be.revertedWith("ERC721: invalid token ID");
-//     });
-//   });
-
   describe("BurnNFT", function () {
     it("Should burn #1 by user1", async function () {
       const { testNft, user1, user2 } = await loadFixture(deployFixture);
@@ -119,6 +121,9 @@ describe("TestNFT", function () {
       await testNft.connect(user1).mintNft();
       await testNft.connect(user2).mintNft();
 
+      expect(await testNft.tokenIds()).to.equal(2);
+      expect(await testNft.hasMinted(user1.address)).to.equal(true);
+      expect(await testNft.hasMinted(user2.address)).to.equal(true);
       expect(await testNft.ownerOf(0)).to.equal(user1.address);
       expect(await testNft.ownerOf(1)).to.equal(user2.address);
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
@@ -127,6 +132,9 @@ describe("TestNFT", function () {
 
       await testNft.connect(user1).burnNft(0);
 
+      expect(await testNft.tokenIds()).to.equal(2);
+      expect(await testNft.hasMinted(user1.address)).to.equal(false);
+      expect(await testNft.hasMinted(user2.address)).to.equal(true);
       await expect(testNft.ownerOf(0)).to.be.revertedWith("ERC721: invalid token ID");
       expect(await testNft.ownerOf(1)).to.equal(user2.address);
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
@@ -140,6 +148,9 @@ describe("TestNFT", function () {
       await testNft.connect(user1).mintNft();
       await testNft.connect(user2).mintNft();
 
+      expect(await testNft.tokenIds()).to.equal(2);
+      expect(await testNft.hasMinted(user1.address)).to.equal(true);
+      expect(await testNft.hasMinted(user2.address)).to.equal(true);
       expect(await testNft.ownerOf(0)).to.equal(user1.address);
       expect(await testNft.ownerOf(1)).to.equal(user2.address);
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
@@ -148,6 +159,9 @@ describe("TestNFT", function () {
 
       await testNft.connect(user2).burnNft(1);
 
+      expect(await testNft.tokenIds()).to.equal(2);
+      expect(await testNft.hasMinted(user1.address)).to.equal(true);
+      expect(await testNft.hasMinted(user2.address)).to.equal(false);
       expect(await testNft.ownerOf(0)).to.equal(user1.address);
       await expect(testNft.ownerOf(1)).to.be.revertedWith("ERC721: invalid token ID");
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
@@ -161,6 +175,9 @@ describe("TestNFT", function () {
       await testNft.connect(user1).mintNft();
       await testNft.connect(user2).mintNft();
 
+      expect(await testNft.tokenIds()).to.equal(2);
+      expect(await testNft.hasMinted(user1.address)).to.equal(true);
+      expect(await testNft.hasMinted(user2.address)).to.equal(true);
       expect(await testNft.ownerOf(0)).to.equal(user1.address);
       expect(await testNft.ownerOf(1)).to.equal(user2.address);
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
@@ -169,11 +186,50 @@ describe("TestNFT", function () {
 
       await expect(testNft.connect(user1).burnNft(1)).to.be.revertedWith("Only the owner can burn");
 
+      expect(await testNft.tokenIds()).to.equal(2);
+      expect(await testNft.hasMinted(user1.address)).to.equal(true);
+      expect(await testNft.hasMinted(user2.address)).to.equal(true);
       expect(await testNft.ownerOf(0)).to.equal(user1.address);
       expect(await testNft.ownerOf(1)).to.equal(user2.address);
       await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
       expect(await testNft.balanceOf(user1.address)).to.equal(1);
       expect(await testNft.balanceOf(user2.address)).to.equal(1);
+    });
+  });
+
+  describe("transferAdminship", function () {
+    it("Should transfer admin", async function () {
+      const { testNft, deployer, user1, user2 } = await loadFixture(deployFixture);
+
+      expect(await testNft.admin()).to.equal(deployer.address);
+
+      await testNft.connect(deployer).transferAdminship(user1.address);
+
+      expect(await testNft.admin()).to.equal(user1.address);
+
+      await testNft.connect(user1).transferAdminship(deployer.address);
+
+      expect(await testNft.admin()).to.equal(deployer.address);
+    });
+
+    it("Should revert transferring admin from non deployer", async function () {
+      const { testNft, deployer, user1, user2 } = await loadFixture(deployFixture);
+
+      expect(await testNft.admin()).to.equal(deployer.address);
+
+      await expect(testNft.connect(user1).transferAdminship(user1.address)).to.be.revertedWith("Only admin");
+
+      expect(await testNft.admin()).to.equal(deployer.address);
+    });
+
+    it("Should revert transferring admin to zero address", async function () {
+      const { testNft, deployer, user1, user2 } = await loadFixture(deployFixture);
+
+      expect(await testNft.admin()).to.equal(deployer.address);
+
+      await expect(testNft.connect(deployer).transferAdminship(ethers.constants.AddressZero)).to.be.revertedWith("New Admin is the zero address");
+
+      expect(await testNft.admin()).to.equal(deployer.address);
     });
   });
 
@@ -209,37 +265,35 @@ describe("TestNFT", function () {
     });
   });
 
-  describe("setContractUriImage", function () {
+  describe("setContractUriJson", function () {
     it("Should read initial vale of tokenUriImage", async function () {
       const { testNft, deployer, user1, user2 } = await loadFixture(deployFixture);
 
-      expect(await testNft.contractUriImage()).to.equal("ipfs://QmayU4hTAyFQTHTfTAvxdiPCtyMxCW2qZs5SF2kUs4jCbk");
+      expect(await testNft.contractUriJson()).to.equal("ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g");
     });
     
-    it("Should set new contractUriImage by admin", async function () {
+    it("Should set new contractUriJson by admin", async function () {
       const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
 
+      expect(await testNft.contractUriJson()).to.equal("ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g");
 
+      await testNft.connect(deployer).setContractUriJson("new contractUriJson");
 
-      expect(await testNft.contractUriImage()).to.equal("ipfs://QmayU4hTAyFQTHTfTAvxdiPCtyMxCW2qZs5SF2kUs4jCbk");
+      expect(await testNft.contractUriJson()).to.equal("new contractUriJson");
 
-      await testNft.connect(deployer).setContractUriImage("new contractUriImage");
+      await testNft.connect(deployer).setContractUriJson("new contractUriJson 2");
 
-      expect(await testNft.contractUriImage()).to.equal("new contractUriImage");
-
-      await testNft.connect(deployer).setContractUriImage("new contractUriImage 2");
-
-      expect(await testNft.contractUriImage()).to.equal("new contractUriImage 2");
+      expect(await testNft.contractUriJson()).to.equal("new contractUriJson 2");
     });
     
-    it("Should revert setting new contractUriImage by non admin", async function () {
+    it("Should revert setting new contractUriJson by non admin", async function () {
       const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
 
-      expect(await testNft.contractUriImage()).to.equal("ipfs://QmayU4hTAyFQTHTfTAvxdiPCtyMxCW2qZs5SF2kUs4jCbk");
+      expect(await testNft.contractUriJson()).to.equal("ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g");
 
-      await expect(testNft.connect(user1).setContractUriImage("new contractUriImage")).to.be.revertedWith("Only admin");
+      await expect(testNft.connect(user1).setContractUriJson("new contractUriJson")).to.be.revertedWith("Only admin");
 
-      expect(await testNft.contractUriImage()).to.equal("ipfs://QmayU4hTAyFQTHTfTAvxdiPCtyMxCW2qZs5SF2kUs4jCbk");
+      expect(await testNft.contractUriJson()).to.equal("ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g");
     });
   });
 });
