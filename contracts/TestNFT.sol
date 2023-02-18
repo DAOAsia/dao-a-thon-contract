@@ -12,8 +12,6 @@ contract TestNFT is ERC721("Test NFT", "TNFT") {
     string public contractUriJson =
         "ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g";
 
-    mapping(address => bool) public hasMinted;
-
     constructor() {
         admin = msg.sender;
     }
@@ -42,20 +40,27 @@ contract TestNFT is ERC721("Test NFT", "TNFT") {
         uint256 firstTokenId,
         uint256 batchSize
     ) internal override {
+        require(
+            from == address(0) || to == address(0),
+            "Cannot transfer to others"
+        );
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
-    function mintNft() external {
-        require(hasMinted[msg.sender] == false, "You hava already minted");
-        hasMinted[msg.sender] = true;
-        _safeMint(msg.sender, tokenIds);
-        ++tokenIds;
+    function hashMsgSender() public view returns (uint256) {
+        return uint256(keccak256(abi.encodePacked(msg.sender)));
     }
 
-    function burnNft(uint256 tokenId) external {
-        require(msg.sender == ownerOf(tokenId), "Only the owner can burn");
-        hasMinted[msg.sender] = false;
-        _burn(tokenId);
+    function mintNft() external {
+        require(balanceOf(msg.sender) == 0, "You hava already minted");
+        ++tokenIds;
+        _safeMint(msg.sender, hashMsgSender());
+    }
+
+    function burnNft() external {
+        require(balanceOf(msg.sender) != 0, "Only the owner can burn");
+        --tokenIds;
+        _burn(hashMsgSender());
     }
 
     function tokenURI(uint256 tokenId)
