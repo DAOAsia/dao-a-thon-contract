@@ -21,6 +21,18 @@ describe("TestNFT", function () {
       const { testNft, user1, user2, user1Hash, user2Hash, deployer } = await loadFixture(deployFixture);
     });
 
+    it("Should check token name", async function () {
+      const { testNft, user1, user2, user1Hash, user2Hash, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.name()).to.equal("Test NFT");
+    });
+
+    it("Should check token symbol", async function () {
+      const { testNft, user1, user2, user1Hash, user2Hash, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.symbol()).to.equal("TNFT");
+    });
+
     it("Should check initial tokenUriImage", async function () {
       const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
 
