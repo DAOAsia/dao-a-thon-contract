@@ -21,8 +21,13 @@ yarn hardhat test
 ```
 
 ### デプロイ
+TestNFTのデプロイ
 ```shell
-yarn hardhat run scripts/deploy.ts --network mumbai
+yarn hardhat run scripts/deployTestNFT.ts --network mumbai
+```
+Daoathonのデプロイ
+```shell
+yarn hardhat run scripts/deployDaoathon.ts --network mumbai
 ```
 デプロイしたコントラクトアドレスが表示されるので、メモしてください。
 
