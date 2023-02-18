@@ -2,9 +2,10 @@
 pragma solidity ^0.8.17;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
-contract TestNFT is ERC721("Test NFT", "TNFT") {
+contract TestNFT is ERC721, Pausable {
     uint256 public tokenIds;
     address public admin;
     string public tokenUriImage =
@@ -12,7 +13,7 @@ contract TestNFT is ERC721("Test NFT", "TNFT") {
     string public contractUriJson =
         "ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g";
 
-    constructor() {
+    constructor() ERC721("Test NFT", "TNFT") {
         admin = msg.sender;
     }
 
@@ -24,6 +25,14 @@ contract TestNFT is ERC721("Test NFT", "TNFT") {
     function transferAdminship(address newAdmin) external onlyAdmin {
         require(newAdmin != address(0), "New Admin is the zero address");
         admin = newAdmin;
+    }
+
+    function pause() public onlyAdmin {
+        _pause();
+    }
+
+    function unpause() public onlyAdmin {
+        _unpause();
     }
 
     function setTokenUriImage(string memory imageCid) external onlyAdmin {
@@ -51,7 +60,7 @@ contract TestNFT is ERC721("Test NFT", "TNFT") {
         return uint256(keccak256(abi.encodePacked(msg.sender)));
     }
 
-    function mintNft() external {
+    function mintNft() external whenNotPaused {
         require(balanceOf(msg.sender) == 0, "You hava already minted");
         ++tokenIds;
         _safeMint(msg.sender, hashMsgSender());
