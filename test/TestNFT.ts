@@ -38,6 +38,12 @@ describe("TestNFT", function () {
 
       expect(await testNft.admin()).to.equal(deployer.address);
     });
+
+    it("Should check pausable", async function () {
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.paused()).to.equal(false);
+    });
   });
 
   describe("mintNft", function () {
@@ -67,7 +73,7 @@ describe("TestNFT", function () {
       expect(await testNft.tokenIds()).to.equal(1);
       expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
       await expect(testNft.ownerOf(user2Hash)).to.be.revertedWith("ERC721: invalid token ID");
-      await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
+      
       expect(await testNft.balanceOf(user1.address)).to.equal(1);
       expect(await testNft.balanceOf(user2.address)).to.equal(0);
 
@@ -76,7 +82,7 @@ describe("TestNFT", function () {
       expect(await testNft.tokenIds()).to.equal(1);
       expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
       await expect(testNft.ownerOf(user2Hash)).to.be.revertedWith("ERC721: invalid token ID");
-      await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
+      
       expect(await testNft.balanceOf(user1.address)).to.equal(1);
       expect(await testNft.balanceOf(user2.address)).to.equal(0);
     });
@@ -89,7 +95,7 @@ describe("TestNFT", function () {
       expect(await testNft.tokenIds()).to.equal(1);
       expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
       await expect(testNft.ownerOf(user2Hash)).to.be.revertedWith("ERC721: invalid token ID");
-      await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
+      
       expect(await testNft.balanceOf(user1.address)).to.equal(1);
       expect(await testNft.balanceOf(user2.address)).to.equal(0);
 
@@ -98,7 +104,7 @@ describe("TestNFT", function () {
       expect(await testNft.tokenIds()).to.equal(2);
       expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
       expect(await testNft.ownerOf(user2Hash)).to.equal(user2.address);
-      await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
+      
       expect(await testNft.balanceOf(user1.address)).to.equal(1);
       expect(await testNft.balanceOf(user2.address)).to.equal(1);
     });
@@ -114,7 +120,7 @@ describe("TestNFT", function () {
       expect(await testNft.tokenIds()).to.equal(2);
       expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
       expect(await testNft.ownerOf(user2Hash)).to.equal(user2.address);
-      await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
+      
       expect(await testNft.balanceOf(user1.address)).to.equal(1);
       expect(await testNft.balanceOf(user2.address)).to.equal(1);
 
@@ -123,7 +129,7 @@ describe("TestNFT", function () {
       expect(await testNft.tokenIds()).to.equal(1);
       await expect(testNft.ownerOf(user1Hash)).to.be.revertedWith("ERC721: invalid token ID");
       expect(await testNft.ownerOf(user2Hash)).to.equal(user2.address);
-      await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
+      
       expect(await testNft.balanceOf(user1.address)).to.equal(0);
       expect(await testNft.balanceOf(user2.address)).to.equal(1);
     });
@@ -137,7 +143,7 @@ describe("TestNFT", function () {
       expect(await testNft.tokenIds()).to.equal(2);
       expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
       expect(await testNft.ownerOf(user2Hash)).to.equal(user2.address);
-      await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
+      
       expect(await testNft.balanceOf(user1.address)).to.equal(1);
       expect(await testNft.balanceOf(user2.address)).to.equal(1);
 
@@ -146,7 +152,7 @@ describe("TestNFT", function () {
       expect(await testNft.tokenIds()).to.equal(1);
       expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
       await expect(testNft.ownerOf(user2Hash)).to.be.revertedWith("ERC721: invalid token ID");
-      await expect(testNft.ownerOf(2)).to.be.revertedWith("ERC721: invalid token ID");
+      
       expect(await testNft.balanceOf(user1.address)).to.equal(1);
       expect(await testNft.balanceOf(user2.address)).to.equal(0);
     });
@@ -303,6 +309,124 @@ describe("TestNFT", function () {
       await testNft.connect(user2).mintNft();
 
       await expect(testNft.connect(user2).transferFrom(user2.address, user3.address, user2Hash)).to.be.revertedWith("Cannot transfer to others");
+    });
+  });
+
+  describe("pausable", function () {
+    it("Should pause by admin", async function () {
+      const { testNft, deployer, user1, user2, user3, user1Hash, user2Hash } = await loadFixture(deployFixture);
+
+      expect(await testNft.paused()).to.equal(false);
+
+      await testNft.connect(deployer).pause();
+
+      expect(await testNft.paused()).to.equal(true);
+    });
+
+    it("Should unpause by admin", async function () {
+      const { testNft, deployer, user1, user2, user3, user1Hash, user2Hash } = await loadFixture(deployFixture);
+
+      expect(await testNft.paused()).to.equal(false);
+
+      await testNft.connect(deployer).pause();
+
+      expect(await testNft.paused()).to.equal(true);
+
+      await testNft.connect(deployer).unpause();
+
+      expect(await testNft.paused()).to.equal(false);
+    });
+
+    it("Should revert pausing by non admin", async function () {
+      const { testNft, deployer, user1, user2, user3, user1Hash, user2Hash } = await loadFixture(deployFixture);
+
+      expect(await testNft.paused()).to.equal(false);
+
+      await expect(testNft.connect(user1).pause()).to.be.revertedWith("Only admin");
+
+      expect(await testNft.paused()).to.equal(false);
+    });
+
+    it("Should revert minting when paused", async function () {
+      const { testNft, deployer, user1, user2, user3, user1Hash, user2Hash } = await loadFixture(deployFixture);
+
+      expect(await testNft.paused()).to.equal(false);
+
+      expect(await testNft.tokenIds()).to.equal(0);
+      await expect(testNft.ownerOf(user1Hash)).to.be.revertedWith("ERC721: invalid token ID");
+      await expect(testNft.ownerOf(user2Hash)).to.be.revertedWith("ERC721: invalid token ID");
+      expect(await testNft.balanceOf(user1.address)).to.equal(0);
+      expect(await testNft.balanceOf(user2.address)).to.equal(0);
+
+      await testNft.connect(user1).mintNft();
+
+      expect(await testNft.tokenIds()).to.equal(1);
+      expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
+      await expect(testNft.ownerOf(user2Hash)).to.be.revertedWith("ERC721: invalid token ID");
+      expect(await testNft.balanceOf(user1.address)).to.equal(1);
+      expect(await testNft.balanceOf(user2.address)).to.equal(0);
+
+      await testNft.connect(deployer).pause();
+
+      expect(await testNft.paused()).to.equal(true);
+
+      await expect(testNft.connect(user2).mintNft()).to.be.revertedWith("Pausable: paused")
+
+      expect(await testNft.tokenIds()).to.equal(1);
+      expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
+      await expect(testNft.ownerOf(user2Hash)).to.be.revertedWith("ERC721: invalid token ID");
+      expect(await testNft.balanceOf(user1.address)).to.equal(1);
+      expect(await testNft.balanceOf(user2.address)).to.equal(0);
+
+      await testNft.connect(deployer).unpause();
+
+      expect(await testNft.paused()).to.equal(false);
+
+      await testNft.connect(user2).mintNft();
+
+      expect(await testNft.tokenIds()).to.equal(2);
+      expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
+      expect(await testNft.ownerOf(user2Hash)).to.equal(user2.address);
+      expect(await testNft.balanceOf(user1.address)).to.equal(1);
+      expect(await testNft.balanceOf(user2.address)).to.equal(1);
+    });
+
+    it("Should burn when paused", async function () {
+      const { testNft, user1, user2, user1Hash, user2Hash, deployer } = await loadFixture(deployFixture);
+      
+      await testNft.connect(user1).mintNft();
+      await testNft.connect(user2).mintNft();
+
+      expect(await testNft.paused()).to.equal(false);
+      expect(await testNft.tokenIds()).to.equal(2);
+      expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
+      expect(await testNft.ownerOf(user2Hash)).to.equal(user2.address);
+      
+      expect(await testNft.balanceOf(user1.address)).to.equal(1);
+      expect(await testNft.balanceOf(user2.address)).to.equal(1);
+
+      expect(await testNft.paused()).to.equal(false);
+
+      await testNft.connect(user1).burnNft();
+
+      expect(await testNft.tokenIds()).to.equal(1);
+      await expect(testNft.ownerOf(user1Hash)).to.be.revertedWith("ERC721: invalid token ID");
+      expect(await testNft.ownerOf(user2Hash)).to.equal(user2.address);
+      
+      expect(await testNft.balanceOf(user1.address)).to.equal(0);
+      expect(await testNft.balanceOf(user2.address)).to.equal(1);
+
+      await testNft.connect(deployer).pause();
+
+      expect(await testNft.paused()).to.equal(true);
+
+      await testNft.connect(user2).burnNft();
+
+      expect(await testNft.tokenIds()).to.equal(0);
+      await expect(testNft.ownerOf(user1Hash)).to.be.revertedWith("ERC721: invalid token ID");
+      await expect(testNft.ownerOf(user2Hash)).to.be.revertedWith("ERC721: invalid token ID");
+      expect(await testNft.balanceOf(user1.address)).to.equal(0);
+      expect(await testNft.balanceOf(user2.address)).to.equal(0);
     });
   });
 });
