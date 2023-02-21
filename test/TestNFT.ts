@@ -1,5 +1,4 @@
 import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
-import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
@@ -89,7 +88,7 @@ describe("TestNFT", function () {
       expect(await testNft.balanceOf(user1.address)).to.equal(1);
       expect(await testNft.balanceOf(user2.address)).to.equal(0);
 
-      await expect(testNft.connect(user1).mintNft()).to.be.revertedWith("You hava already minted");
+      await expect(testNft.connect(user1).mintNft()).to.be.revertedWith("ERC721: token already minted");
 
       expect(await testNft.tokenIds()).to.equal(1);
       expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
@@ -178,7 +177,7 @@ describe("TestNFT", function () {
       expect(await testNft.balanceOf(user1.address)).to.equal(0);
       expect(await testNft.balanceOf(user2.address)).to.equal(0);
 
-      await expect(testNft.connect(user1).burnNft()).to.be.revertedWith("Only the owner can burn");
+      await expect(testNft.connect(user1).burnNft()).to.be.reverted;
     });
 
     it("Should mint again", async function () {

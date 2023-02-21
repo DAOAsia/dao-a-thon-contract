@@ -61,13 +61,11 @@ contract TestNFT is ERC721, Pausable {
     }
 
     function mintNft() external whenNotPaused {
-        require(balanceOf(msg.sender) == 0, "You hava already minted");
         ++tokenIds;
         _safeMint(msg.sender, hashMsgSender());
     }
 
     function burnNft() external {
-        require(balanceOf(msg.sender) != 0, "Only the owner can burn");
         --tokenIds;
         _burn(hashMsgSender());
     }
