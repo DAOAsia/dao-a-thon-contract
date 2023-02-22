@@ -309,6 +309,38 @@ describe("Daoathon", function () {
     });
   });
 
+  describe("setExternalUrl", function () {
+    it("Should read initial vale of externalUrl", async function () {
+      const { daoathon, deployer, user1, user2 } = await loadFixture(deployFixture);
+
+      expect(await daoathon.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+    });
+    
+    it("Should set new externalUrl by admin", async function () {
+      const { daoathon, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await daoathon.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+
+      await daoathon.connect(deployer).setExternalUrl("new externalUrl");
+
+      expect(await daoathon.externalUrl()).to.equal("new externalUrl");
+
+      await daoathon.connect(deployer).setExternalUrl("new externalUrl 2");
+
+      expect(await daoathon.externalUrl()).to.equal("new externalUrl 2");
+    });
+    
+    it("Should revert setting new externalUrl by non admin", async function () {
+      const { daoathon, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await daoathon.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+
+      await expect(daoathon.connect(user1).setExternalUrl("new externalUrl")).to.be.revertedWith("Only admin");
+
+      expect(await daoathon.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+    });
+  });
+
   describe("non transfer", function () {
     it("Should revert transferring by user1", async function () {
       const { daoathon, deployer, user1, user2, user3, user1Hash, user2Hash } = await loadFixture(deployFixture);

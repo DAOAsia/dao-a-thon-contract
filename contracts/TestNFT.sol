@@ -12,6 +12,7 @@ contract TestNFT is ERC721, Pausable {
         "ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S";
     string public contractUriJson =
         "ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g";
+    string public externalUrl = "https://dao-a-thon-front-cp9e.vercel.app/";
 
     constructor() ERC721("Test NFT", "TNFT") {
         admin = msg.sender;
@@ -41,6 +42,10 @@ contract TestNFT is ERC721, Pausable {
 
     function setContractUriJson(string memory jsonCid) external onlyAdmin {
         contractUriJson = jsonCid;
+    }
+
+    function setExternalUrl(string memory _externalUrl) external onlyAdmin {
+        externalUrl = _externalUrl;
     }
 
     function _beforeTokenTransfer(
@@ -85,7 +90,9 @@ contract TestNFT is ERC721, Pausable {
                         abi.encodePacked(
                             '{"image": "',
                             tokenUriImage,
-                            '", "external_url": "https://ethereum.org/", "description": "tokenURI description. tokenURI description.", "name": "Test NFT Player", "background_color": "000000"}'
+                            '", "',
+                            externalUrl,
+                            '": "https://ethereum.org/", "description": "tokenURI description. tokenURI description.", "name": "Test NFT Player", "background_color": "000000"}'
                         )
                     )
                 )

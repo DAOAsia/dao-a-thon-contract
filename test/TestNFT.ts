@@ -303,6 +303,38 @@ describe("TestNFT", function () {
     });
   });
 
+  describe("setExternalUrl", function () {
+    it("Should read initial vale of externalUrl", async function () {
+      const { testNft, deployer, user1, user2 } = await loadFixture(deployFixture);
+
+      expect(await testNft.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+    });
+    
+    it("Should set new externalUrl by admin", async function () {
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+
+      await testNft.connect(deployer).setExternalUrl("new externalUrl");
+
+      expect(await testNft.externalUrl()).to.equal("new externalUrl");
+
+      await testNft.connect(deployer).setExternalUrl("new externalUrl 2");
+
+      expect(await testNft.externalUrl()).to.equal("new externalUrl 2");
+    });
+    
+    it("Should revert setting new externalUrl by non admin", async function () {
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+
+      await expect(testNft.connect(user1).setExternalUrl("new externalUrl")).to.be.revertedWith("Only admin");
+
+      expect(await testNft.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+    });
+  });
+
   describe("non transfer", function () {
     it("Should revert transferring by user1", async function () {
       const { testNft, deployer, user1, user2, user3, user1Hash, user2Hash } = await loadFixture(deployFixture);
