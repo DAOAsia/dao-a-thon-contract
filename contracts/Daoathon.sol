@@ -12,6 +12,7 @@ contract Daoathon is ERC721, Pausable {
         "ipfs://Qme91E5bV9FUuRh4Us9hMyhobfsVKQ3ui4AQ87NoqrLhGe";
     string public contractUriJson =
         "ipfs://QmUvxmsBqjBsSciC9oLJnVBqZKXDkgsy67WnRA2oHc88b7";
+    string public externalUrl = "https://dao-a-thon-front-cp9e.vercel.app/";
 
     constructor() ERC721("DAO-A-THON Player", "DAT") {
         admin = msg.sender;
@@ -41,6 +42,10 @@ contract Daoathon is ERC721, Pausable {
 
     function setContractUriJson(string memory jsonCid) external onlyAdmin {
         contractUriJson = jsonCid;
+    }
+
+    function setExternalUrl(string memory _externalUrl) external onlyAdmin {
+        externalUrl = _externalUrl;
     }
 
     function _beforeTokenTransfer(
@@ -85,7 +90,9 @@ contract Daoathon is ERC721, Pausable {
                         abi.encodePacked(
                             '{"image": "',
                             tokenUriImage,
-                            '", "external_url": "https://ethereum.org/", "description": "tokenURI description. tokenURI description.", "name": "Test NFT Player", "background_color": "000000"}'
+                            '", "external_url": "',
+                            externalUrl,
+                            '", "description": "The DAO-A-THON is the mixture of hackathon and ideathon that brings together web3 enthusiasts from Japan and around the world to collaborate on decentralized autonomous organization (DAO) projects. The event combines elements of an ideathon and hackathon to address the challenges and limitations faced by current DAOs, such as scaling and decentralization. The goal is to empower and inspire new talents to contribute to the growing ecosystem of DAOs, particularly in nations like Japan where understanding and adoption of decentralized technology are still developing. The event aims to promote the growth of the DAOism movement in Asia and establish it as a leading hub for new communities in this field.", "name": "DAO-A-THON Player", "background_color": "000000"}'
                         )
                     )
                 )
