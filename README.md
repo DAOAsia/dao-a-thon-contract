@@ -14,6 +14,7 @@ yarn install
 cp ./.env.example ./.env
 ```
 コピーされた.envファイルの中身を埋めてください。
+（使用するネットワークのものだけが正確であれば、あとは適当でもコンパイル＆デプロイできるかと思われます。）
 
 ### テスト
 ```shell
@@ -23,15 +24,15 @@ yarn hardhat test
 ### デプロイ
 TestNFTのデプロイ
 ```shell
-yarn hardhat run scripts/deployTestNFT.ts --network mumbai
+yarn hardhat run scripts/deployTestNFT.ts --network goerli
 ```
 Daoathonのデプロイ
 ```shell
-yarn hardhat run scripts/deployDaoathon.ts --network mumbai
+yarn hardhat run scripts/deployDaoathon.ts --network goerli
 ```
 デプロイしたコントラクトアドレスが表示されるので、メモしてください。
 
 ### Polygonscanによるコントラクトの認証
 ```shell
-yarn hardhat verify --network mumbai {コントラクトアドレス}
+yarn hardhat verify --network goerli {コントラクトアドレス}
 ```
