@@ -32,7 +32,7 @@ yarn hardhat run scripts/deployDaoathon.ts --network goerli
 ```
 デプロイしたコントラクトアドレスが表示されるので、メモしてください。
 
-### Polygonscanによるコントラクトの認証
+### Etherscanによるコントラクトの認証
 ```shell
 yarn hardhat verify --network goerli {コントラクトアドレス}
 ```
