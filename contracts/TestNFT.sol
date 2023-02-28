@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 contract TestNFT is ERC721, Pausable {
-    uint256 public tokenIds;
     address public admin;
+    uint256 public tokenIds;
     string public tokenUriImage =
         "ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S";
     string public contractUriJson =
@@ -18,33 +18,42 @@ contract TestNFT is ERC721, Pausable {
         admin = msg.sender;
     }
 
-    modifier onlyAdmin() {
-        require(msg.sender == admin, "Only admin");
-        _;
+    function onlyAdmin() internal view {
+        if (msg.sender != admin) revert("Only admin");
     }
 
-    function transferAdminship(address newAdmin) external onlyAdmin {
-        require(newAdmin != address(0), "New Admin is the zero address");
+    function transferAdminship(address newAdmin) external {
+        onlyAdmin();
+        bool isZeroAddress;
+        assembly {
+            isZeroAddress := iszero(newAdmin)
+        }
+        if (isZeroAddress) revert("New Admin is the zero address");
         admin = newAdmin;
     }
 
-    function pause() public onlyAdmin {
+    function pause() public {
+        onlyAdmin();
         _pause();
     }
 
-    function unpause() public onlyAdmin {
+    function unpause() public {
+        onlyAdmin();
         _unpause();
     }
 
-    function setTokenUriImage(string memory imageCid) external onlyAdmin {
+    function setTokenUriImage(string calldata imageCid) external {
+        onlyAdmin();
         tokenUriImage = imageCid;
     }
 
-    function setContractUriJson(string memory jsonCid) external onlyAdmin {
+    function setContractUriJson(string calldata jsonCid) external {
+        onlyAdmin();
         contractUriJson = jsonCid;
     }
 
-    function setExternalUrl(string memory _externalUrl) external onlyAdmin {
+    function setExternalUrl(string calldata _externalUrl) external {
+        onlyAdmin();
         externalUrl = _externalUrl;
     }
 
@@ -54,24 +63,31 @@ contract TestNFT is ERC721, Pausable {
         uint256 firstTokenId,
         uint256 batchSize
     ) internal override {
-        require(
-            from == address(0) || to == address(0),
-            "Cannot transfer to others"
-        );
+        bool fromIsZero;
+        bool toIsZero;
+        assembly {
+            fromIsZero := iszero(from)
+            toIsZero := iszero(to)
+        }
+        if (!fromIsZero && !toIsZero) revert("Cannot transfer to others");
         super._beforeTokenTransfer(from, to, firstTokenId, batchSize);
     }
 
     function hashMsgSender() public view returns (uint256) {
-        return uint256(keccak256(abi.encodePacked(msg.sender)));
+        return uint256(keccak256(abi.encode(msg.sender)));
     }
 
     function mintNft() external whenNotPaused {
-        ++tokenIds;
+        unchecked {
+            ++tokenIds;
+        }
         _safeMint(msg.sender, hashMsgSender());
     }
 
     function burnNft() external {
-        --tokenIds;
+        unchecked {
+            --tokenIds;
+        }
         _burn(hashMsgSender());
     }
 
