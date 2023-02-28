@@ -18,12 +18,16 @@ contract TestNFT is ERC721, Pausable {
         admin = msg.sender;
     }
 
-    function onlyAdmin() internal view {
+    modifier onlyAdmin() {
+        _checkAdmin();
+        _;
+    }
+
+    function _checkAdmin() private view {
         if (msg.sender != admin) revert("Only admin");
     }
 
-    function transferAdminship(address newAdmin) external {
-        onlyAdmin();
+    function transferAdminship(address newAdmin) external onlyAdmin {
         bool isZeroAddress;
         assembly {
             isZeroAddress := iszero(newAdmin)
@@ -32,28 +36,23 @@ contract TestNFT is ERC721, Pausable {
         admin = newAdmin;
     }
 
-    function pause() public {
-        onlyAdmin();
+    function pause() public onlyAdmin {
         _pause();
     }
 
-    function unpause() public {
-        onlyAdmin();
+    function unpause() public onlyAdmin {
         _unpause();
     }
 
-    function setTokenUriImage(string calldata imageCid) external {
-        onlyAdmin();
+    function setTokenUriImage(string calldata imageCid) external onlyAdmin {
         tokenUriImage = imageCid;
     }
 
-    function setContractUriJson(string calldata jsonCid) external {
-        onlyAdmin();
+    function setContractUriJson(string calldata jsonCid) external onlyAdmin {
         contractUriJson = jsonCid;
     }
 
-    function setExternalUrl(string calldata _externalUrl) external {
-        onlyAdmin();
+    function setExternalUrl(string calldata _externalUrl) external onlyAdmin {
         externalUrl = _externalUrl;
     }
 
