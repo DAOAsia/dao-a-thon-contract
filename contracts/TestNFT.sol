@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 contract TestNFT is ERC721, Pausable {
-    address public admin;
     uint256 public tokenIds;
+    address public admin;
     string public tokenUriImage =
         "ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S";
     string public contractUriJson =

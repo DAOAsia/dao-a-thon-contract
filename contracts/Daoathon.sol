@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/security/Pausable.sol";
 import "@openzeppelin/contracts/utils/Base64.sol";
 
 contract Daoathon is ERC721, Pausable {
-    address public admin;
     uint256 public tokenIds;
+    address public admin;
     string public tokenUriImage =
         "ipfs://Qme91E5bV9FUuRh4Us9hMyhobfsVKQ3ui4AQ87NoqrLhGe";
     string public contractUriJson =
