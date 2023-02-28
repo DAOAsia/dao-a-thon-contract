@@ -4,6 +4,9 @@ import "dotenv/config";
 
 const config: HardhatUserConfig = {
   solidity: "0.8.17",
+  gasReporter: {
+    enabled: true,
+  },
   etherscan: {
     apiKey: process.env.ETHERSCAN_API_KEY,
     // apiKey: process.env.POLYGONSCAN_API_KEY,
