@@ -4,7 +4,7 @@ import { ethers } from "hardhat";
 
 const initialTokenUriImage: string = "ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S";
 const initialContractUriJson: string = "ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g";
-const initialExternalUrl = "https://dao-a-thon-front-cp9e.vercel.app/";
+const initialExternalUrl: string = "https://dao-a-thon-front-cp9e.vercel.app/";
 
 describe("TestNFT", function () {
   async function deployFixture() {

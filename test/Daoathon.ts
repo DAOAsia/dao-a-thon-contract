@@ -4,7 +4,7 @@ import { ethers } from "hardhat";
 
 const initialTokenUriImage: string = "ipfs://Qme91E5bV9FUuRh4Us9hMyhobfsVKQ3ui4AQ87NoqrLhGe";
 const initialContractUriJson: string = "ipfs://QmUvxmsBqjBsSciC9oLJnVBqZKXDkgsy67WnRA2oHc88b7";
-const initialExternalUrl = "https://dao-a-thon-front-cp9e.vercel.app/";
+const initialExternalUrl: string = "https://dao-a-thon-front-cp9e.vercel.app/";
 
 describe("Daoathon", function () {
   async function deployFixture() {
