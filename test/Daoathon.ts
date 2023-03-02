@@ -2,6 +2,10 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
+const initialTokenUriImage: string = "ipfs://Qme91E5bV9FUuRh4Us9hMyhobfsVKQ3ui4AQ87NoqrLhGe";
+const initialContractUriJson: string = "ipfs://QmUvxmsBqjBsSciC9oLJnVBqZKXDkgsy67WnRA2oHc88b7";
+const initialExternalUrl = "https://dao-a-thon-front-cp9e.vercel.app/";
+
 describe("Daoathon", function () {
   async function deployFixture() {
     const [user1, user2, user3, deployer] = await ethers.getSigners();
@@ -32,22 +36,28 @@ describe("Daoathon", function () {
       expect(await daoathon.symbol()).to.equal("DAT");
     });
 
-    it("Should check token name", async function () {
-      const { daoathon, user1, user2, user1Hash, user2Hash, deployer } = await loadFixture(deployFixture);
-
-      expect(await daoathon.name()).to.equal("DAO-A-THON Player");
-    });
-
     it("Should check initial tokenUriImage", async function () {
       const { daoathon, user1, user2, deployer } = await loadFixture(deployFixture);
 
-      expect(await daoathon.tokenUriImage()).to.equal("ipfs://Qme91E5bV9FUuRh4Us9hMyhobfsVKQ3ui4AQ87NoqrLhGe");
+      expect(await daoathon.tokenUriImage()).to.equal(initialTokenUriImage);
     });
 
     it("Should check initial contractUriJson", async function () {
       const { daoathon, user1, user2, deployer } = await loadFixture(deployFixture);
 
-      expect(await daoathon.contractUriJson()).to.equal("ipfs://QmUvxmsBqjBsSciC9oLJnVBqZKXDkgsy67WnRA2oHc88b7");
+      expect(await daoathon.contractUriJson()).to.equal(initialContractUriJson);
+    });
+
+    it("Should check initial externalUrl", async function () {
+      const { daoathon, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await daoathon.externalUrl()).to.equal(initialExternalUrl);
+    });
+
+    it("Should check tokenIds", async function () {
+      const { daoathon, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await daoathon.tokenIds()).to.equal(0);
     });
 
     it("Should check admin", async function () {
@@ -245,35 +255,66 @@ describe("Daoathon", function () {
     });
   });
 
+  describe("tokenURI", function () {
+    it("Should read initial vale of tokenURI", async function () {
+      const { daoathon, deployer, user1, user2, user1Hash } = await loadFixture(deployFixture);
+
+      expect(await daoathon.tokenIds()).to.equal(0);
+      await expect(daoathon.ownerOf(user1Hash)).to.be.revertedWith("ERC721: invalid token ID");
+  
+      await daoathon.connect(user1).mintNft();
+
+      expect(await daoathon.balanceOf(user1.address)).to.equal(1);
+      expect(await daoathon.ownerOf(user1Hash)).to.equal(user1.address);
+      
+      const decodedTokenUri = JSON.parse(atob((await daoathon.tokenURI(user1Hash)).split(",")[1]));
+      
+      expect(decodedTokenUri.image).to.equal(initialTokenUriImage);
+      expect(decodedTokenUri.external_url).to.equal(initialExternalUrl);
+      expect(decodedTokenUri.description).to.equal("The DAO-A-THON is the mixture of hackathon and ideathon that brings together web3 enthusiasts from Japan and around the world to collaborate on decentralized autonomous organization (DAO) projects. The event combines elements of an ideathon and hackathon to address the challenges and limitations faced by current DAOs, such as scaling and decentralization. The goal is to empower and inspire new talents to contribute to the growing ecosystem of DAOs, particularly in nations like Japan where understanding and adoption of decentralized technology are still developing. The event aims to promote the growth of the DAOism movement in Asia and establish it as a leading hub for new communities in this field.");
+      expect(decodedTokenUri.name).to.equal("DAO-A-THON Player");
+      expect(decodedTokenUri.background_color).to.equal("000000");
+    });
+  });
+
   describe("setTokenUriImage", function () {
     it("Should read initial vale of tokenUriImage", async function () {
       const { daoathon, deployer, user1, user2 } = await loadFixture(deployFixture);
 
-      expect(await daoathon.tokenUriImage()).to.equal("ipfs://Qme91E5bV9FUuRh4Us9hMyhobfsVKQ3ui4AQ87NoqrLhGe");
+      expect(await daoathon.tokenUriImage()).to.equal(initialTokenUriImage);
     });
     
     it("Should set new tokenUriImage by admin", async function () {
-      const { daoathon, user1, user2, deployer } = await loadFixture(deployFixture);
+      const { daoathon, user1, user2, deployer, user1Hash } = await loadFixture(deployFixture);
 
-      expect(await daoathon.tokenUriImage()).to.equal("ipfs://Qme91E5bV9FUuRh4Us9hMyhobfsVKQ3ui4AQ87NoqrLhGe");
+      await daoathon.connect(user1).mintNft();
+
+      expect(await daoathon.tokenUriImage()).to.equal(initialTokenUriImage);
+      expect(JSON.parse(atob((await daoathon.tokenURI(user1Hash)).split(",")[1])).image).to.equal(initialTokenUriImage);
 
       await daoathon.connect(deployer).setTokenUriImage("new tokenUriImage");
 
       expect(await daoathon.tokenUriImage()).to.equal("new tokenUriImage");
+      expect(JSON.parse(atob((await daoathon.tokenURI(user1Hash)).split(",")[1])).image).to.equal("new tokenUriImage");
 
       await daoathon.connect(deployer).setTokenUriImage("new tokenUriImage 2");
 
       expect(await daoathon.tokenUriImage()).to.equal("new tokenUriImage 2");
+      expect(JSON.parse(atob((await daoathon.tokenURI(user1Hash)).split(",")[1])).image).to.equal("new tokenUriImage 2");
     });
     
     it("Should revert setting new tokenUriImage by non admin", async function () {
-      const { daoathon, user1, user2, deployer } = await loadFixture(deployFixture);
+      const { daoathon, user1, user2, deployer, user1Hash } = await loadFixture(deployFixture);
 
-      expect(await daoathon.tokenUriImage()).to.equal("ipfs://Qme91E5bV9FUuRh4Us9hMyhobfsVKQ3ui4AQ87NoqrLhGe");
+      await daoathon.connect(user1).mintNft();
+
+      expect(await daoathon.tokenUriImage()).to.equal(initialTokenUriImage);
+      expect(JSON.parse(atob((await daoathon.tokenURI(user1Hash)).split(",")[1])).image).to.equal(initialTokenUriImage);
 
       await expect(daoathon.connect(user1).setTokenUriImage("new tokenUriImage")).to.be.revertedWith("Only admin");
 
-      expect(await daoathon.tokenUriImage()).to.equal("ipfs://Qme91E5bV9FUuRh4Us9hMyhobfsVKQ3ui4AQ87NoqrLhGe");
+      expect(await daoathon.tokenUriImage()).to.equal(initialTokenUriImage);
+      expect(JSON.parse(atob((await daoathon.tokenURI(user1Hash)).split(",")[1])).image).to.equal(initialTokenUriImage);
     });
   });
 
@@ -281,13 +322,13 @@ describe("Daoathon", function () {
     it("Should read initial vale of tokenUriImage", async function () {
       const { daoathon, deployer, user1, user2 } = await loadFixture(deployFixture);
 
-      expect(await daoathon.contractUriJson()).to.equal("ipfs://QmUvxmsBqjBsSciC9oLJnVBqZKXDkgsy67WnRA2oHc88b7");
+      expect(await daoathon.contractUriJson()).to.equal(initialContractUriJson);
     });
     
     it("Should set new contractUriJson by admin", async function () {
       const { daoathon, user1, user2, deployer } = await loadFixture(deployFixture);
 
-      expect(await daoathon.contractUriJson()).to.equal("ipfs://QmUvxmsBqjBsSciC9oLJnVBqZKXDkgsy67WnRA2oHc88b7");
+      expect(await daoathon.contractUriJson()).to.equal(initialContractUriJson);
 
       await daoathon.connect(deployer).setContractUriJson("new contractUriJson");
 
@@ -301,11 +342,11 @@ describe("Daoathon", function () {
     it("Should revert setting new contractUriJson by non admin", async function () {
       const { daoathon, user1, user2, deployer } = await loadFixture(deployFixture);
 
-      expect(await daoathon.contractUriJson()).to.equal("ipfs://QmUvxmsBqjBsSciC9oLJnVBqZKXDkgsy67WnRA2oHc88b7");
+      expect(await daoathon.contractUriJson()).to.equal(initialContractUriJson);
 
       await expect(daoathon.connect(user1).setContractUriJson("new contractUriJson")).to.be.revertedWith("Only admin");
 
-      expect(await daoathon.contractUriJson()).to.equal("ipfs://QmUvxmsBqjBsSciC9oLJnVBqZKXDkgsy67WnRA2oHc88b7");
+      expect(await daoathon.contractUriJson()).to.equal(initialContractUriJson);
     });
   });
 
@@ -313,31 +354,40 @@ describe("Daoathon", function () {
     it("Should read initial vale of externalUrl", async function () {
       const { daoathon, deployer, user1, user2 } = await loadFixture(deployFixture);
 
-      expect(await daoathon.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+      expect(await daoathon.externalUrl()).to.equal(initialExternalUrl);
     });
     
     it("Should set new externalUrl by admin", async function () {
-      const { daoathon, user1, user2, deployer } = await loadFixture(deployFixture);
+      const { daoathon, user1, user2, deployer, user1Hash } = await loadFixture(deployFixture);
 
-      expect(await daoathon.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+      await daoathon.connect(user1).mintNft();
+
+      expect(await daoathon.externalUrl()).to.equal(initialExternalUrl);
+      expect(JSON.parse(atob((await daoathon.tokenURI(user1Hash)).split(",")[1])).external_url).to.equal(initialExternalUrl);
 
       await daoathon.connect(deployer).setExternalUrl("new externalUrl");
 
       expect(await daoathon.externalUrl()).to.equal("new externalUrl");
+      expect(JSON.parse(atob((await daoathon.tokenURI(user1Hash)).split(",")[1])).external_url).to.equal("new externalUrl");
 
       await daoathon.connect(deployer).setExternalUrl("new externalUrl 2");
 
       expect(await daoathon.externalUrl()).to.equal("new externalUrl 2");
+      expect(JSON.parse(atob((await daoathon.tokenURI(user1Hash)).split(",")[1])).external_url).to.equal("new externalUrl 2");
     });
     
     it("Should revert setting new externalUrl by non admin", async function () {
-      const { daoathon, user1, user2, deployer } = await loadFixture(deployFixture);
+      const { daoathon, user1, user2, deployer, user1Hash } = await loadFixture(deployFixture);
 
-      expect(await daoathon.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+      await daoathon.connect(user1).mintNft();
+
+      expect(await daoathon.externalUrl()).to.equal(initialExternalUrl);
+      expect(JSON.parse(atob((await daoathon.tokenURI(user1Hash)).split(",")[1])).external_url).to.equal(initialExternalUrl);
 
       await expect(daoathon.connect(user1).setExternalUrl("new externalUrl")).to.be.revertedWith("Only admin");
 
-      expect(await daoathon.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+      expect(await daoathon.externalUrl()).to.equal(initialExternalUrl);
+      expect(JSON.parse(atob((await daoathon.tokenURI(user1Hash)).split(",")[1])).external_url).to.equal(initialExternalUrl);
     });
   });
 

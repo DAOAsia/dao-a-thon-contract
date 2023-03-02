@@ -2,6 +2,10 @@ import { loadFixture } from "@nomicfoundation/hardhat-network-helpers";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 
+const initialTokenUriImage: string = "ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S";
+const initialContractUriJson: string = "ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g";
+const initialExternalUrl = "https://dao-a-thon-front-cp9e.vercel.app/";
+
 describe("TestNFT", function () {
   async function deployFixture() {
     const [user1, user2, user3, deployer] = await ethers.getSigners();
@@ -35,13 +39,25 @@ describe("TestNFT", function () {
     it("Should check initial tokenUriImage", async function () {
       const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
 
-      expect(await testNft.tokenUriImage()).to.equal("ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S");
+      expect(await testNft.tokenUriImage()).to.equal(initialTokenUriImage);
     });
 
     it("Should check initial contractUriJson", async function () {
       const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
 
-      expect(await testNft.contractUriJson()).to.equal("ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g");
+      expect(await testNft.contractUriJson()).to.equal(initialContractUriJson);
+    });
+
+    it("Should check initial externalUrl", async function () {
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.externalUrl()).to.equal(initialExternalUrl);
+    });
+
+    it("Should check tokenIds", async function () {
+      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+
+      expect(await testNft.tokenIds()).to.equal(0);
     });
 
     it("Should check admin", async function () {
@@ -239,35 +255,66 @@ describe("TestNFT", function () {
     });
   });
 
+  describe("tokenURI", function () {
+    it("Should read initial vale of tokenURI", async function () {
+      const { testNft, deployer, user1, user2, user1Hash } = await loadFixture(deployFixture);
+
+      expect(await testNft.tokenIds()).to.equal(0);
+      await expect(testNft.ownerOf(user1Hash)).to.be.revertedWith("ERC721: invalid token ID");
+  
+      await testNft.connect(user1).mintNft();
+
+      expect(await testNft.balanceOf(user1.address)).to.equal(1);
+      expect(await testNft.ownerOf(user1Hash)).to.equal(user1.address);
+      
+      const decodedTokenUri = JSON.parse(atob((await testNft.tokenURI(user1Hash)).split(",")[1]));
+      
+      expect(decodedTokenUri.image).to.equal(initialTokenUriImage);
+      expect(decodedTokenUri.external_url).to.equal(initialExternalUrl);
+      expect(decodedTokenUri.description).to.equal("tokenURI description. tokenURI description.");
+      expect(decodedTokenUri.name).to.equal("Test NFT Player");
+      expect(decodedTokenUri.background_color).to.equal("000000");
+    });
+  });
+
   describe("setTokenUriImage", function () {
     it("Should read initial vale of tokenUriImage", async function () {
       const { testNft, deployer, user1, user2 } = await loadFixture(deployFixture);
 
-      expect(await testNft.tokenUriImage()).to.equal("ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S");
+      expect(await testNft.tokenUriImage()).to.equal(initialTokenUriImage);
     });
     
     it("Should set new tokenUriImage by admin", async function () {
-      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+      const { testNft, user1, user2, deployer, user1Hash } = await loadFixture(deployFixture);
 
-      expect(await testNft.tokenUriImage()).to.equal("ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S");
+      await testNft.connect(user1).mintNft();
+
+      expect(await testNft.tokenUriImage()).to.equal(initialTokenUriImage);
+      expect(JSON.parse(atob((await testNft.tokenURI(user1Hash)).split(",")[1])).image).to.equal(initialTokenUriImage);
 
       await testNft.connect(deployer).setTokenUriImage("new tokenUriImage");
 
       expect(await testNft.tokenUriImage()).to.equal("new tokenUriImage");
+      expect(JSON.parse(atob((await testNft.tokenURI(user1Hash)).split(",")[1])).image).to.equal("new tokenUriImage");
 
       await testNft.connect(deployer).setTokenUriImage("new tokenUriImage 2");
 
       expect(await testNft.tokenUriImage()).to.equal("new tokenUriImage 2");
+      expect(JSON.parse(atob((await testNft.tokenURI(user1Hash)).split(",")[1])).image).to.equal("new tokenUriImage 2");
     });
     
     it("Should revert setting new tokenUriImage by non admin", async function () {
-      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+      const { testNft, user1, user2, deployer, user1Hash } = await loadFixture(deployFixture);
 
-      expect(await testNft.tokenUriImage()).to.equal("ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S");
+      await testNft.connect(user1).mintNft();
+
+      expect(await testNft.tokenUriImage()).to.equal(initialTokenUriImage);
+      expect(JSON.parse(atob((await testNft.tokenURI(user1Hash)).split(",")[1])).image).to.equal(initialTokenUriImage);
 
       await expect(testNft.connect(user1).setTokenUriImage("new tokenUriImage")).to.be.revertedWith("Only admin");
 
-      expect(await testNft.tokenUriImage()).to.equal("ipfs://QmaA1TmDGUa8mBMF7rcMYdjtCBqbq5jM9r5DDRrgRZeH6S");
+      expect(await testNft.tokenUriImage()).to.equal(initialTokenUriImage);
+      expect(JSON.parse(atob((await testNft.tokenURI(user1Hash)).split(",")[1])).image).to.equal(initialTokenUriImage);
     });
   });
 
@@ -275,13 +322,13 @@ describe("TestNFT", function () {
     it("Should read initial vale of tokenUriImage", async function () {
       const { testNft, deployer, user1, user2 } = await loadFixture(deployFixture);
 
-      expect(await testNft.contractUriJson()).to.equal("ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g");
+      expect(await testNft.contractUriJson()).to.equal(initialContractUriJson);
     });
     
     it("Should set new contractUriJson by admin", async function () {
       const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
 
-      expect(await testNft.contractUriJson()).to.equal("ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g");
+      expect(await testNft.contractUriJson()).to.equal(initialContractUriJson);
 
       await testNft.connect(deployer).setContractUriJson("new contractUriJson");
 
@@ -295,11 +342,11 @@ describe("TestNFT", function () {
     it("Should revert setting new contractUriJson by non admin", async function () {
       const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
 
-      expect(await testNft.contractUriJson()).to.equal("ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g");
+      expect(await testNft.contractUriJson()).to.equal(initialContractUriJson);
 
       await expect(testNft.connect(user1).setContractUriJson("new contractUriJson")).to.be.revertedWith("Only admin");
 
-      expect(await testNft.contractUriJson()).to.equal("ipfs://QmdgXMUVV2fqHC37yPvQ1TsQAdewPrxd4JBZJEWYC2PT3g");
+      expect(await testNft.contractUriJson()).to.equal(initialContractUriJson);
     });
   });
 
@@ -307,31 +354,40 @@ describe("TestNFT", function () {
     it("Should read initial vale of externalUrl", async function () {
       const { testNft, deployer, user1, user2 } = await loadFixture(deployFixture);
 
-      expect(await testNft.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+      expect(await testNft.externalUrl()).to.equal(initialExternalUrl);
     });
     
     it("Should set new externalUrl by admin", async function () {
-      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+      const { testNft, user1, user2, deployer, user1Hash } = await loadFixture(deployFixture);
 
-      expect(await testNft.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+      await testNft.connect(user1).mintNft();
+
+      expect(await testNft.externalUrl()).to.equal(initialExternalUrl);
+      expect(JSON.parse(atob((await testNft.tokenURI(user1Hash)).split(",")[1])).external_url).to.equal(initialExternalUrl);
 
       await testNft.connect(deployer).setExternalUrl("new externalUrl");
 
       expect(await testNft.externalUrl()).to.equal("new externalUrl");
+      expect(JSON.parse(atob((await testNft.tokenURI(user1Hash)).split(",")[1])).external_url).to.equal("new externalUrl");
 
       await testNft.connect(deployer).setExternalUrl("new externalUrl 2");
 
       expect(await testNft.externalUrl()).to.equal("new externalUrl 2");
+      expect(JSON.parse(atob((await testNft.tokenURI(user1Hash)).split(",")[1])).external_url).to.equal("new externalUrl 2");
     });
     
     it("Should revert setting new externalUrl by non admin", async function () {
-      const { testNft, user1, user2, deployer } = await loadFixture(deployFixture);
+      const { testNft, user1, user2, deployer, user1Hash } = await loadFixture(deployFixture);
 
-      expect(await testNft.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+      await testNft.connect(user1).mintNft();
+
+      expect(await testNft.externalUrl()).to.equal(initialExternalUrl);
+      expect(JSON.parse(atob((await testNft.tokenURI(user1Hash)).split(",")[1])).external_url).to.equal(initialExternalUrl);
 
       await expect(testNft.connect(user1).setExternalUrl("new externalUrl")).to.be.revertedWith("Only admin");
 
-      expect(await testNft.externalUrl()).to.equal("https://dao-a-thon-front-cp9e.vercel.app/");
+      expect(await testNft.externalUrl()).to.equal(initialExternalUrl);
+      expect(JSON.parse(atob((await testNft.tokenURI(user1Hash)).split(",")[1])).external_url).to.equal(initialExternalUrl);
     });
   });
 
