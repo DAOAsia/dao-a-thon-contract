@@ -91,7 +91,7 @@ contract TestSimpleNFT is ERC721, Pausable {
         //             abi.encodePacked(
         //                 '{"image": "',
         //                 tokenUriImage,
-        //                 '", "',
+        //                 '", "external_url": "',
         //                 externalUrl,
         //                 '": "https://ethereum.org/", "description": "tokenURI description. tokenURI description.", "name": "Test NFT Player", "background_color": "000000"}'
         //             )
