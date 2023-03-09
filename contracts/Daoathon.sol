@@ -12,7 +12,7 @@ contract Daoathon is ERC721, Pausable {
         "ipfs://Qme91E5bV9FUuRh4Us9hMyhobfsVKQ3ui4AQ87NoqrLhGe";
     string public contractUriJson =
         "ipfs://QmUvxmsBqjBsSciC9oLJnVBqZKXDkgsy67WnRA2oHc88b7";
-    string public externalUrl = "https://dao-a-thon-front-cp9e.vercel.app/";
+    string public externalUrl = "https://dao-a-thon-front.vercel.app/";
 
     constructor() ERC721("DAO-A-THON Player", "DAT") {
         admin = msg.sender;
@@ -75,12 +75,9 @@ contract Daoathon is ERC721, Pausable {
         _burn(hashMsgSender());
     }
 
-    function tokenURI(uint256 tokenId)
-        public
-        view
-        override
-        returns (string memory)
-    {
+    function tokenURI(
+        uint256 tokenId
+    ) public view override returns (string memory) {
         _requireMinted(tokenId);
         return
             string(
